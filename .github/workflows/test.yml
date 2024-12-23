@@ -1,12 +1,12 @@
-name: Run Tests for Multiple Languages
+name: Run Tests
 
 on:
   push:
     branches:
-      - main
+      - main  # Runs on pushes to the main branch
   pull_request:
     branches:
-      - main
+      - main  # Runs on pull requests to the main branch
 
 jobs:
   test:
@@ -16,35 +16,16 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Detect Language and Run Tests
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'  # Specify your Python version
+
+    - name: Install dependencies
       run: |
-        if [ -f "requirements.txt" ]; then
-          echo "Python project detected"
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pytest tests/
-        elif [ -f "package.json" ]; then
-          echo "Node.js project detected"
-          npm install
-          npm test
-        elif [ -f "pom.xml" ]; then
-          echo "Java project detected"
-          sudo apt-get install -y maven
-          mvn test
-        elif [ -f "Makefile" ]; then
-          echo "C++ project detected"
-          sudo apt-get install -y build-essential
-          make
-          make test
-        elif [ -f "Gemfile" ]; then
-          echo "Ruby project detected"
-          gem install bundler
-          bundle install
-          bundle exec rspec
-        elif [ -f "go.mod" ]; then
-          echo "Go project detected"
-          go test ./...
-        else
-          echo "No supported language configuration found"
-          exit 1
-        fi
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt  # Adjust based on your project setup
+
+    - name: Run tests
+      run: |
+        pytest tests/
