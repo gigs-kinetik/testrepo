@@ -1,0 +1,50 @@
+name: Run Tests for Multiple Languages
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Detect Language and Run Tests
+      run: |
+        if [ -f "requirements.txt" ]; then
+          echo "Python project detected"
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pytest tests/
+        elif [ -f "package.json" ]; then
+          echo "Node.js project detected"
+          npm install
+          npm test
+        elif [ -f "pom.xml" ]; then
+          echo "Java project detected"
+          sudo apt-get install -y maven
+          mvn test
+        elif [ -f "Makefile" ]; then
+          echo "C++ project detected"
+          sudo apt-get install -y build-essential
+          make
+          make test
+        elif [ -f "Gemfile" ]; then
+          echo "Ruby project detected"
+          gem install bundler
+          bundle install
+          bundle exec rspec
+        elif [ -f "go.mod" ]; then
+          echo "Go project detected"
+          go test ./...
+        else
+          echo "No supported language configuration found"
+          exit 1
+        fi
